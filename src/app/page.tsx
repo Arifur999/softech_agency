@@ -1,5 +1,6 @@
 import { CustomSoftwareSection } from "@/components/modules/Home/CustomSoftware/CustomSoftwareSection";
 import { HeroSection } from "@/components/modules/Home/Hero/HeroSection";
+import { HowWeWorkSection } from "@/components/modules/Home/HowWeWork/HowWeWorkSection";
 import { MeetFurnifySection } from "@/components/modules/Home/MeetFurnify/MeetFurnifySection";
 import { OurSoftwareSection } from "@/components/modules/Home/OurSoftware/OurSoftwareSection";
 import { WhatIsSoftechSection } from "@/components/modules/Home/WhatIsSoftech/WhatIsSoftechSection";
@@ -15,6 +16,7 @@ export default function HomePage() {
       <MeetFurnifySection />
       <CustomSoftwareSection />
       <WhySoftechSection />
+      <HowWeWorkSection />
     </>
   );
 }

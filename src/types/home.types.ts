@@ -39,3 +39,24 @@ export interface ICustomSoftwareCard {
   /** The middle card wears the blue gradient. */
   highlighted?: boolean;
 }
+
+/** A box positioned as percentages of its parent card. */
+export interface IBoxPercent {
+  left: number;
+  top: number;
+  width: number;
+  height?: number;
+}
+
+/** One illustrated step in the How We Work grid. */
+export interface IProcessCard {
+  title: string;
+  lead: string;
+  description: string;
+  image: string;
+  width: number;
+  height: number;
+  panelColor: string;
+  panel: Required<IBoxPercent>;
+  text: IBoxPercent;
+}

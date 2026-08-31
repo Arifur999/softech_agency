@@ -28,7 +28,7 @@ export function WhySoftechSection() {
       <div className="flex w-full flex-col gap-8 lg:flex-row lg:items-end lg:gap-[55px]">
         <WorkflowCard />
 
-        <div className="flex flex-col gap-[27px] lg:w-[722px] lg:shrink-0">
+        <div className="flex flex-col gap-[27px] lg:w-[46%] lg:shrink-0 2xl:w-[722px]">
           {WHY_SOFTECH_PRINCIPLES.map((card, index) => (
             <PrincipleCard key={card.title} {...card} disc={PRINCIPLE_DISCS[index]} />
           ))}

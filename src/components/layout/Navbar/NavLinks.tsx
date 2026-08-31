@@ -19,10 +19,15 @@ export function NavLinks({ layout = "bar", onNavigate }: NavLinksProps) {
   return (
     <nav
       className={cn(
-        "font-nav text-[16px] font-medium text-[#383838]",
+        "font-nav font-medium text-[#383838]",
         layout === "bar"
-          ? "flex h-[57px] items-center gap-6 rounded-[32px] bg-white/71 px-5 backdrop-blur-sm xl:gap-[50px] xl:px-8"
-          : "flex flex-col items-stretch gap-1",
+          ? [
+              "flex h-[50px] items-center rounded-[32px] bg-white/71 backdrop-blur-sm 2xl:h-[57px]",
+              "gap-2.5 px-3 text-[14px]",
+              "xl:gap-4 xl:px-5 xl:text-[15px]",
+              "2xl:gap-[50px] 2xl:px-8 2xl:text-[16px]",
+            ]
+          : "flex flex-col items-stretch gap-1 text-[16px]",
       )}
     >
       <Link

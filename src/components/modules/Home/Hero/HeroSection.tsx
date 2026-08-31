@@ -14,10 +14,14 @@ export function HeroSection() {
     <section id="home" className="relative w-full overflow-hidden">
       <HeroBackdrop />
 
-      {/* Rectangle 108 (1:354) — white blur that fades the hero into the next section. */}
+      {/*
+        Rectangle 108 (1:354) — a white rect at blur(104.4px) fading the hero
+        into the next section. Rendered as a gradient instead: the same wash,
+        without a 100px+ compositor blur over a full-bleed element.
+      */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-[-4%] top-[85.78%] z-20 h-[52.76%] bg-white blur-[104.4px]"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[22%] bg-linear-to-b from-transparent to-white"
       />
 
       <SectionShell

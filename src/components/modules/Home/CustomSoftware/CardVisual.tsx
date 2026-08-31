@@ -1,28 +1,26 @@
-import Image from "next/image";
-
 import { GROWTH_BARS, REQUIREMENT_PILLS } from "@/data/home/customSoftware";
+import { cn } from "@/lib/utils";
 import type { CustomSoftwareVisual } from "@/types/home.types";
 
 /** The decorative footer each Custom Software card ends with. */
 export function CardVisual({ visual }: { visual: CustomSoftwareVisual }) {
   if (visual === "track") {
-    // Nodes 1:430 / 1:434 — two overlapping connector tracks.
+    // Nodes 1:430 / 1:434 — three 36px nodes joined by 4px connectors. The
+    // design overlaps two fixed 235px exports; drawn as flex so it fits any
+    // card width instead of forcing a 436px minimum.
+    const dots = ["#DBE9FF", "#D3E3FF", "#A5C5FB"];
+
     return (
-      <div aria-hidden className="relative h-[36px] w-full max-w-[436px]">
-        <Image
-          src="/icons/custom-software/track-left.svg"
-          alt=""
-          width={235}
-          height={36}
-          className="absolute top-0 left-0 h-[36px] w-[235px] max-w-none"
-        />
-        <Image
-          src="/icons/custom-software/track-right.svg"
-          alt=""
-          width={235}
-          height={36}
-          className="absolute top-0 left-[201px] h-[36px] w-[235px] max-w-none"
-        />
+      <div aria-hidden className="flex h-[36px] w-full max-w-[436px] items-center">
+        {dots.map((color, index) => (
+          <div key={color} className={cn("flex items-center", index < dots.length - 1 && "flex-1")}>
+            <span
+              className="size-[36px] shrink-0 rounded-full"
+              style={{ backgroundColor: color }}
+            />
+            {index < dots.length - 1 ? <span className="h-1 flex-1 bg-[#9FBCFF]" /> : null}
+          </div>
+        ))}
       </div>
     );
   }

@@ -15,16 +15,22 @@ export function MeetFurnifySection() {
 
   return (
     <section id="furnify" className="relative w-full overflow-hidden bg-[#fcfcfd]">
-      {/* Node 1:149 — gradient wash at blur(400px). */}
+      {/* Node 1:149 — a gradient bar at blur(400px), expressed here as the soft
+          radial wash it resolves to, which costs the compositor nothing. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute top-[52%] left-[7.6%] h-[407px] w-[88.5%] bg-linear-to-r from-[#2c87ff] to-[#a5c5fb] blur-[400px]"
+        className="pointer-events-none absolute top-[38%] left-0 h-[62%] w-full"
+        style={{
+          backgroundImage:
+            "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(44,135,255,0.30) 0%, rgba(165,197,251,0.16) 55%, rgba(255,255,255,0) 100%)",
+        }}
       />
 
-      {/* Rectangle 170 (1:164) — white blur closing out the blue band. */}
+      {/* Rectangle 170 (1:164) — the white blur closing out the blue band, drawn
+          as the gradient it resolves to. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-[-6%] z-20 h-[17.8%] bg-white blur-[41.85px]"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[16%] bg-linear-to-b from-transparent to-white"
       />
 
       <SectionShell

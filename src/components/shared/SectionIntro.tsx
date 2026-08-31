@@ -8,6 +8,7 @@ interface SectionIntroProps extends ISectionIntro {
   tone?: "dark" | "light";
   className?: string;
   headingClassName?: string;
+  accentClassName?: string;
   descriptionClassName?: string;
 }
 
@@ -25,6 +26,7 @@ export function SectionIntro({
   tone = "dark",
   className,
   headingClassName,
+  accentClassName,
   descriptionClassName,
 }: SectionIntroProps) {
   const centered = align === "center";
@@ -42,7 +44,8 @@ export function SectionIntro({
       <SectionHeading
         {...heading}
         tone={tone}
-        className={cn("mt-5 max-w-[16ch] sm:max-w-none", headingClassName)}
+        className={cn("mt-5", headingClassName)}
+        accentClassName={accentClassName}
       />
 
       {description ? (

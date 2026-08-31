@@ -60,3 +60,15 @@ export interface IProcessCard {
   panel: Required<IBoxPercent>;
   text: IBoxPercent;
 }
+
+/** One card in the What We Solve grid. */
+export interface ISolveCard {
+  title: string;
+  description: string;
+  /** Chip labels; `null` renders the placeholder bars from nodes 1:655 – 1:661. */
+  chips: string[] | null;
+  linkLabel: string;
+  href: string;
+  /** The first card carries the stronger border and a drop shadow. */
+  featured?: boolean;
+}

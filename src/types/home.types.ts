@@ -5,3 +5,24 @@ export interface IFeatureCard {
   title: string;
   description: string;
 }
+
+/** A stat tile inside the Furnify operations panel. */
+export interface IProductStat {
+  value: string;
+  label: string;
+  icon: string;
+  /** True when the exported SVG already contains its own disc. */
+  iconIsWhole?: boolean;
+}
+
+/** The repeated "Order Analytics" mini dashboard card. */
+export interface IOrderAnalytics {
+  title: string;
+  subtitle: string;
+  leftLabel: string;
+  rightLabel: string;
+  /** Percentage of the progress bar that is filled. */
+  progress: number;
+  footLeft: string;
+  footRight: string;
+}

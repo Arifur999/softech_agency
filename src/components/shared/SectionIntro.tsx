@@ -7,6 +7,7 @@ interface SectionIntroProps extends ISectionIntro {
   align?: "left" | "center";
   tone?: "dark" | "light";
   className?: string;
+  badgeClassName?: string;
   headingClassName?: string;
   accentClassName?: string;
   descriptionClassName?: string;
@@ -25,6 +26,7 @@ export function SectionIntro({
   align = "left",
   tone = "dark",
   className,
+  badgeClassName,
   headingClassName,
   accentClassName,
   descriptionClassName,
@@ -39,7 +41,9 @@ export function SectionIntro({
         className,
       )}
     >
-      <SectionBadge tone={tone === "dark" ? "light" : "onDark"}>{badge}</SectionBadge>
+      <SectionBadge tone={tone === "dark" ? "light" : "onDark"} className={badgeClassName}>
+        {badge}
+      </SectionBadge>
 
       <SectionHeading
         {...heading}

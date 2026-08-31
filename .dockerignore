@@ -1,0 +1,14 @@
+node_modules
+.next
+.git
+.github
+.vscode
+deploy
+npm-debug.log*
+README.md
+AGENTS.md
+CLAUDE.md
+.env*
+!.env.example
+Dockerfile
+.dockerignore

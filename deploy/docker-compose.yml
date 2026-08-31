@@ -1,0 +1,28 @@
+# Lives on the VPS at /opt/softech-agency/docker-compose.yml
+#
+# The container binds to 127.0.0.1 only — nginx on the host is the single
+# public entrypoint, so nothing here can be reached directly from the internet
+# and nothing here can collide with a port another site is already serving.
+
+services:
+  web:
+    image: ${IMAGE}
+    container_name: softech-agency
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${APP_PORT:-3100}:3000"
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: 0.0.0.0
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

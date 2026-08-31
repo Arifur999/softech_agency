@@ -1,0 +1,132 @@
+name: Deploy
+
+# main -> quality gate -> image to GHCR -> SSH pull on the VPS.
+# Every step must pass before the next runs, so a broken commit never reaches
+# softech.agency. Nothing here touches any other site on the server.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  quality:
+    name: Quality gate
+    uses: ./.github/workflows/ci.yml
+
+  build:
+    name: Build and push image
+    needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Resolve image tags
+        id: meta
+        run: |
+          REPO=$(echo "${{ env.IMAGE_NAME }}" | tr '[:upper:]' '[:lower:]')
+          echo "repo=$REPO" >> "$GITHUB_OUTPUT"
+          echo "image=${{ env.REGISTRY }}/$REPO:${{ github.sha }}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ steps.meta.outputs.repo }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ steps.meta.outputs.repo }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    name: Release to VPS
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    steps:
+      - name: Pull and restart over SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            cd /opt/softech-agency
+
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io \
+              -u "${{ github.actor }}" --password-stdin
+
+            # Remember what is running so a bad release can be rolled back.
+            PREVIOUS=$(grep '^IMAGE=' .env | cut -d= -f2- || true)
+            echo "previous image: ${PREVIOUS:-none}"
+
+            sed -i "s|^IMAGE=.*|IMAGE=${{ needs.build.outputs.image }}|" .env
+            grep -q '^IMAGE=' .env || echo "IMAGE=${{ needs.build.outputs.image }}" >> .env
+
+            docker compose pull web
+            docker compose up -d --remove-orphans web
+
+            # Only this site's container is ever inspected or restarted.
+            echo "waiting for health..."
+            for i in $(seq 1 30); do
+              STATE=$(docker inspect -f '{{.State.Health.Status}}' softech-agency 2>/dev/null || echo starting)
+              if [ "$STATE" = "healthy" ]; then
+                echo "healthy after ${i}0s"
+                docker image prune -f --filter "until=168h" >/dev/null 2>&1 || true
+                exit 0
+              fi
+              sleep 10
+            done
+
+            echo "::error::New image never became healthy — rolling back."
+            if [ -n "${PREVIOUS:-}" ]; then
+              sed -i "s|^IMAGE=.*|IMAGE=${PREVIOUS}|" .env
+              docker compose up -d web
+            fi
+            docker compose logs --tail=80 web
+            exit 1
+
+      - name: Verify the site answers over HTTPS
+        run: |
+          for i in $(seq 1 10); do
+            CODE=$(curl -sS -o /dev/null -w '%{http_code}' https://softech.agency/ || echo 000)
+            if [ "$CODE" = "200" ]; then echo "softech.agency -> 200"; exit 0; fi
+            echo "attempt $i: $CODE"; sleep 6
+          done
+          echo "::error::softech.agency did not return 200"; exit 1
+
+      - name: Confirm furnify.softech.agency is still up
+        run: |
+          CODE=$(curl -sS -o /dev/null -w '%{http_code}' https://furnify.softech.agency/ || echo 000)
+          echo "furnify.softech.agency -> $CODE"
+          case "$CODE" in
+            2*|3*) ;;
+            *) echo "::error::furnify.softech.agency looks affected by this deploy"; exit 1 ;;
+          esac

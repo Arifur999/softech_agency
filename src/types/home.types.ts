@@ -26,3 +26,16 @@ export interface IOrderAnalytics {
   footLeft: string;
   footRight: string;
 }
+
+/** Which decorative footer a Custom Software card draws. */
+export type CustomSoftwareVisual = "track" | "pills" | "bars";
+
+export interface ICustomSoftwareCard {
+  number: string;
+  icon: string;
+  title: string;
+  description: string;
+  visual: CustomSoftwareVisual;
+  /** The middle card wears the blue gradient. */
+  highlighted?: boolean;
+}

@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Softech Agency
 
-## Getting Started
+Marketing site for Softech, implemented pixel-for-pixel from the
+[Figma design](https://www.figma.com/design/adpQcPsaCV06HNM68pFGXE/Softech?node-id=1-307).
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Next.js 16** (App Router) + **React 19** + **TypeScript**
+- **Tailwind CSS v4** — tokens live in `src/app/globals.css`, no `tailwind.config.js`
+- **shadcn/ui** (`radix-maia`, base colour `neutral`, CSS variables)
+- **next/font** — Manrope (headings + body), DM Sans (buttons/pills), Montserrat (nav)
+
+## Structure
+
+```
+src/
+  app/               layout, page, global styles
+  components/
+    ui/              shadcn primitives (generated — not hand-edited)
+    shared/          SectionShell, SectionIntro, PillButton, … reused everywhere
+    layout/          Navbar, Footer
+    modules/Home/    one folder per page section
+  data/              all copy, as typed constants
+  types/             shared interfaces
+  lib/               fonts, cn()
+public/images/       assets exported from Figma
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Sections are composed in `src/app/page.tsx`; each one owns its folder under
+`src/components/modules/Home/` and reads its copy from `src/data/home/`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Development
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm install
+npm run dev
+```
 
-## Learn More
+## Scripts
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the dev server |
+| `npm run build` | Production build |
+| `npm run lint` | ESLint |

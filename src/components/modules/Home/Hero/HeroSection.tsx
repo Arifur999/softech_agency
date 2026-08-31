@@ -14,6 +14,12 @@ export function HeroSection() {
     <section id="home" className="relative w-full overflow-hidden">
       <HeroBackdrop />
 
+      {/* Rectangle 108 (1:354) — white blur that fades the hero into the next section. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-[-4%] top-[85.78%] z-20 h-[52.76%] bg-white blur-[104.4px]"
+      />
+
       <SectionShell
         as="div"
         className="pt-[110px] pb-0 sm:pt-[130px] lg:min-h-[1160px] lg:pt-[166px]"

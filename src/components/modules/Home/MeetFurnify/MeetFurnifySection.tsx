@@ -21,6 +21,12 @@ export function MeetFurnifySection() {
         className="pointer-events-none absolute top-[52%] left-[7.6%] h-[407px] w-[88.5%] bg-linear-to-r from-[#2c87ff] to-[#a5c5fb] blur-[400px]"
       />
 
+      {/* Rectangle 170 (1:164) — white blur closing out the blue band. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-[-6%] z-20 h-[17.8%] bg-white blur-[41.85px]"
+      />
+
       <SectionShell
         as="div"
         className="pt-16 pb-0 lg:pt-[161px]"

@@ -31,9 +31,12 @@ work for a free undo.
 
 ### 1. Survey the server (changes nothing)
 
+From the VPS (the Hostinger browser console works fine — there is no scp there):
+
 ```bash
-scp deploy/inspect-server.sh root@187.127.124.251:/root/
-ssh root@187.127.124.251 'bash /root/inspect-server.sh'
+apt-get update -qq && apt-get install -y -qq git
+git clone https://github.com/Arifur999/softech_agency.git /root/softech-src
+bash /root/softech-src/deploy/inspect-server.sh
 ```
 
 Read the output before continuing. What matters:
@@ -65,11 +68,9 @@ Certbot fails if these do not resolve yet, so do this before step 4.
 ### 3. Prepare the server
 
 ```bash
-scp deploy/bootstrap.sh deploy/docker-compose.yml root@187.127.124.251:/root/
-ssh root@187.127.124.251
-  sudo bash /root/bootstrap.sh          # add APP_PORT=3200 if 3100 was taken
-  mkdir -p /opt/softech-agency
-  mv /root/docker-compose.yml /opt/softech-agency/
+cd /root/softech-src/deploy
+bash bootstrap.sh                     # APP_PORT=3200 bash bootstrap.sh if 3100 was taken
+cp docker-compose.yml /opt/softech-agency/
 ```
 
 Installs Docker if absent, creates `/opt/softech-agency` and its `.env`.
@@ -110,8 +111,8 @@ on `GHCR_TOKEN`.
 ### 6. nginx + TLS
 
 ```bash
-scp -r deploy/setup-nginx.sh deploy/nginx root@187.127.124.251:/root/
-ssh root@187.127.124.251 'sudo bash /root/setup-nginx.sh you@example.com'
+cd /root/softech-src && git pull
+bash deploy/setup-nginx.sh you@example.com
 ```
 
 The script tars `/etc/nginx` to `/root/` first, records furnify's HTTP status

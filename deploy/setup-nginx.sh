@@ -79,7 +79,18 @@ fi
 
 printf '\n\033[1m5. Installing the real config\033[0m\n'
 cp "$SITE" "${SITE}.http-only.bak"
-cp "$(dirname "$0")/nginx/${DOMAIN}.conf" "$SITE"
+
+# Prefer the checked-out copy; fall back to the repo so this still works when
+# the script is piped straight from curl.
+CONF="$(cd "$(dirname "$0")" 2>/dev/null && pwd)/nginx/${DOMAIN}.conf"
+if [ -f "$CONF" ]; then
+  cp "$CONF" "$SITE"
+  ok "using $CONF"
+else
+  info "local config not found, fetching from GitHub"
+  curl -fsSL "https://raw.githubusercontent.com/Arifur999/softech_agency/main/deploy/nginx/${DOMAIN}.conf" \
+    -o "$SITE" || die "could not fetch the nginx config"
+fi
 sed -i "s|server 127.0.0.1:3100;|server 127.0.0.1:${APP_PORT};|" "$SITE"
 
 if ! nginx -t 2>/dev/null; then

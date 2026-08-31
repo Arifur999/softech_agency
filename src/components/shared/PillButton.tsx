@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
+import { externalLinkProps } from "@/lib/links";
 import { cn } from "@/lib/utils";
 
 export type PillVariant = "gradient" | "outline" | "white" | "ghostOnDark";
@@ -68,7 +69,7 @@ export function PillButton({
   if (props.href !== undefined) {
     const { href, ...linkProps } = props;
     return (
-      <Link href={href} className={ring} {...linkProps}>
+      <Link href={href} className={ring} {...externalLinkProps(href)} {...linkProps}>
         {inner}
       </Link>
     );

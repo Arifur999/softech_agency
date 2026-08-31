@@ -1,3 +1,5 @@
+import { EXTERNAL_LINKS } from "@/data/externalLinks";
+
 export const BUILD_WHATS_NEXT = {
   badge: "BUILD WHAT'S NEXT",
   heading: {
@@ -8,5 +10,5 @@ export const BUILD_WHATS_NEXT = {
   description:
     "Explore software made for your industry, or let's build something made for your business.",
   primary: { label: "Explore Products", href: "#products" },
-  secondary: { label: "Build Custom Software", href: "#custom-software" },
+  secondary: { label: "Build Custom Software", href: EXTERNAL_LINKS.booking },
 } as const;

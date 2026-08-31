@@ -1,4 +1,5 @@
 import type { INavLink } from "@/types/common.types";
+import { EXTERNAL_LINKS } from "@/data/externalLinks";
 
 export const NAV_LINKS: INavLink[] = [
   { label: "Home", href: "#home" },
@@ -23,5 +24,5 @@ export const PRIMARY_CTA = {
 
 export const SECONDARY_CTA = {
   label: "Build custom Software",
-  href: "#custom-software",
+  href: EXTERNAL_LINKS.booking,
 } as const;

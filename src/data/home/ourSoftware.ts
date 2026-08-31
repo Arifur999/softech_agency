@@ -1,5 +1,6 @@
 import type { ISectionIntro } from "@/types/common.types";
 import type { IOrderAnalytics, IProductStat } from "@/types/home.types";
+import { EXTERNAL_LINKS } from "@/data/externalLinks";
 
 export const OUR_SOFTWARE_INTRO: ISectionIntro = {
   badge: "OUR SOFTWARE",
@@ -26,7 +27,7 @@ export const FURNIFY = {
   title: "Software built specifically for furniture businesses.",
   description:
     "Furnify brings the workflows, operations, and tools of a furniture business into one focused platform built specifically for the industry instead of adapted from generic software.",
-  cta: { label: "Explore Furnify", href: "#furnify" },
+  cta: { label: "Explore Furnify", href: EXTERNAL_LINKS.furnify },
   panelTitle: "Operations Overview",
   panelDelta: "+18%",
 } as const;

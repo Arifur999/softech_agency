@@ -1,5 +1,6 @@
 import type { ISectionIntro } from "@/types/common.types";
 import type { ICustomSoftwareCard } from "@/types/home.types";
+import { EXTERNAL_LINKS } from "@/data/externalLinks";
 
 export const CUSTOM_SOFTWARE_INTRO: ISectionIntro = {
   badge: "CUSTOM  SOFTWARE",
@@ -15,7 +16,7 @@ export const CUSTOM_SOFTWARE_INTRO: ISectionIntro = {
 
 export const CUSTOM_SOFTWARE_CTA = {
   label: "Build Custom Software",
-  href: "#contact",
+  href: EXTERNAL_LINKS.booking,
 } as const;
 
 /** Every card carries "01" in the design — kept verbatim. */

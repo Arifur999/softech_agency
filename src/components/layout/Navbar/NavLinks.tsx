@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { NAV_LINKS } from "@/data/navigation";
+import { externalLinkProps } from "@/lib/links";
 import { cn } from "@/lib/utils";
 
 interface NavLinksProps {
@@ -46,6 +47,7 @@ export function NavLinks({ layout = "bar", onNavigate }: NavLinksProps) {
           key={link.href}
           href={link.href}
           onClick={onNavigate}
+          {...externalLinkProps(link.href)}
           className={cn(
             "whitespace-nowrap transition-colors hover:text-brand-600",
             layout === "stack" && "rounded-[30px] px-4 py-3 hover:bg-[#e2eaff]",

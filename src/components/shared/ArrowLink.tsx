@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
+import { externalLinkProps } from "@/lib/links";
 import { cn } from "@/lib/utils";
 
 interface ArrowLinkProps {
@@ -14,6 +15,7 @@ export function ArrowLink({ href, children, className }: ArrowLinkProps) {
   return (
     <Link
       href={href}
+      {...externalLinkProps(href)}
       className={cn(
         "group inline-flex items-center gap-2 text-[13px] font-medium text-brand-500 transition-colors hover:text-brand-700 sm:text-[14px]",
         className,

@@ -1,10 +1,12 @@
+import { EXTERNAL_LINKS } from "@/data/externalLinks";
+
 export const CONTACT_CTA = {
   badge: "HAVE SOMETHING ELSE IN MIND?",
   heading: {
     lead: "Tell us what your business needs. We'll figure out how software",
     accent: "can solve it.",
   },
-  primary: { label: "Talk to softtech", href: "#contact" },
+  primary: { label: "Talk to softtech", href: EXTERNAL_LINKS.booking },
   secondary: { label: "Explore Our Products", href: "#products" },
   panel: {
     needsTitle: "BUSINESS NEED",

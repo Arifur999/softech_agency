@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { externalLinkProps } from "@/lib/links";
 import type { INavLink } from "@/types/common.types";
 
 interface FooterColumnProps {
@@ -16,7 +17,11 @@ export function FooterColumn({ title, links }: FooterColumnProps) {
       <ul className="flex flex-col gap-2 text-[15px] lg:text-[16px]">
         {links.map((link) => (
           <li key={link.label}>
-            <Link href={link.href} className="transition-colors hover:text-brand-200">
+            <Link
+              href={link.href}
+              className="transition-colors hover:text-brand-200"
+              {...externalLinkProps(link.href)}
+            >
               {link.label}
             </Link>
           </li>

@@ -1,4 +1,5 @@
 import type { INavLink } from "@/types/common.types";
+import { EXTERNAL_LINKS } from "@/data/externalLinks";
 
 export const FOOTER_CTA = {
   heading: {
@@ -7,7 +8,7 @@ export const FOOTER_CTA = {
   },
   description: "Let's talk about what software could do for it.",
   /** Node 1:797 reads "Lat's Talk" in the design — kept verbatim. */
-  button: { label: "Lat's Talk", href: "#contact" },
+  button: { label: "Lat's Talk", href: EXTERNAL_LINKS.booking },
 } as const;
 
 export const FOOTER_BRAND = {
@@ -23,7 +24,7 @@ export const FOOTER_COLUMNS: { title: string; links: INavLink[] }[] = [
     title: "Products",
     links: [
       { label: "All Products", href: "#products" },
-      { label: "Furnify", href: "#furnify" },
+      { label: "Furnify", href: EXTERNAL_LINKS.furnify },
       { label: "Coming Soon", href: "#products" },
     ],
   },

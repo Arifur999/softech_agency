@@ -13,6 +13,8 @@ interface FeatureIconProps {
   disc?: string;
   /** Diameter of the disc. */
   size?: number;
+  /** True when the exported SVG already contains its own disc. */
+  bare?: boolean;
   /** Edge of the glyph itself, which Figma keeps well inside the disc. */
   glyphSize?: number;
   className?: string;
@@ -22,6 +24,7 @@ interface FeatureIconProps {
 export function FeatureIcon({
   src,
   disc,
+  bare,
   size = 44,
   glyphSize = 26,
   className,
@@ -31,7 +34,7 @@ export function FeatureIcon({
       className={cn("relative inline-flex shrink-0 items-center justify-center", className)}
       style={{ width: size, height: size }}
     >
-      {disc ? (
+      {bare ? null : disc ? (
         <Image src={disc} alt="" aria-hidden fill sizes={`${size}px`} className="object-contain" />
       ) : (
         <span aria-hidden className="absolute inset-0 rounded-full bg-[#EBF1FE]" />
@@ -41,9 +44,9 @@ export function FeatureIcon({
         src={src}
         alt=""
         aria-hidden
-        width={glyphSize}
-        height={glyphSize}
-        style={{ width: glyphSize, height: glyphSize }}
+        width={bare ? size : glyphSize}
+        height={bare ? size : glyphSize}
+        style={{ width: bare ? size : glyphSize, height: bare ? size : glyphSize }}
         className="relative"
       />
     </span>

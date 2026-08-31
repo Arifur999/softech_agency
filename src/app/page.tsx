@@ -4,6 +4,8 @@ import { MeetFurnifySection } from "@/components/modules/Home/MeetFurnify/MeetFu
 import { OurSoftwareSection } from "@/components/modules/Home/OurSoftware/OurSoftwareSection";
 import { WhatIsSoftechSection } from "@/components/modules/Home/WhatIsSoftech/WhatIsSoftechSection";
 
+import { WhySoftechSection } from "@/components/modules/Home/WhySoftech/WhySoftechSection";
+
 export default function HomePage() {
   return (
     <>
@@ -12,6 +14,7 @@ export default function HomePage() {
       <OurSoftwareSection />
       <MeetFurnifySection />
       <CustomSoftwareSection />
+      <WhySoftechSection />
     </>
   );
 }

@@ -35,6 +35,13 @@ jobs:
       - name: Lint
         run: npx eslint .
 
+      # tsconfig pulls in .next/types, where Next generates the globals the app
+      # router relies on (LayoutProps, PageProps, route literals). Those only
+      # exist after a dev server or build has run, so on a clean checkout tsc
+      # fails on names it cannot see. typegen writes them without the full build.
+      - name: Generate route types
+        run: npx next typegen
+
       - name: Typecheck
         run: npx tsc --noEmit
 

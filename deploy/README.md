@@ -4,8 +4,13 @@ Target: `softech.agency` + `www.softech.agency` on the Hostinger VPS
 (Ubuntu 24.04, `187.127.124.251`).
 
 `furnify.softech.agency` already runs on this server and **must keep running**.
-Everything here is additive: a container bound to `127.0.0.1`, and one new
-nginx file named `softech.agency`. No existing config is edited.
+Everything here is additive; no existing config is edited.
+
+> **This server has no host nginx.** A survey on 2026-09-01 found `:80`/`:443`
+> held by `docker-proxy`, and no certbot or `/etc/letsencrypt` — so the reverse
+> proxy and TLS both live in a container. `setup-nginx.sh` and
+> `nginx/softech.agency.conf` assume a host nginx and **must not be run here**
+> until they are adapted. Run `inspect-proxy.sh` to identify the proxy first.
 
 ---
 

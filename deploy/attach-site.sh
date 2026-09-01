@@ -35,7 +35,8 @@ die()  { printf '\033[31m FAIL\033[0m  %s\n' "$1" >&2; exit 1; }
 docker inspect "$NGINX_CTR" >/dev/null 2>&1 || die "container $NGINX_CTR not found"
 
 restore() {
-  cp "$BACKUP" "$CONF"
+  # cat >, not cp: same single-file bind mount inode caveat as step 4.
+  cat "$BACKUP" > "$CONF"
   docker exec "$NGINX_CTR" nginx -t >/dev/null 2>&1 \
     && docker exec "$NGINX_CTR" nginx -s reload >/dev/null 2>&1 || true
 }
@@ -77,9 +78,30 @@ else
 fi
 
 printf '\n\033[1m4. Installing the real config\033[0m\n'
-# Drop the ACME-only block, append the full one.
-sed -i "/$(printf '%s' "$MARKER" | sed 's/[][\.*^$/]/\\&/g')/,\$d" "$CONF"
-{ printf '\n%s\n' "$MARKER"; cat "$SRC/nginx/${DOMAIN}.container.conf"; } >> "$CONF"
+# Drop the ACME-only block, then write the full one.
+#
+# Built in a temp file and copied back with `cat >`, never `sed -i`. CONF is a
+# SINGLE-FILE bind mount into the nginx container, and a single-file bind
+# follows the inode, not the path. `sed -i` writes a temp file and renames it
+# over the original, which swaps the inode — the container then keeps reading
+# the old one forever, `nginx -t` cheerfully validates stale content, and the
+# reload appears to succeed while changing nothing. Truncate-and-write keeps
+# the inode, so the container sees the edit.
+TMP=$(mktemp)
+sed "/$(printf '%s' "$MARKER" | sed 's/[][\.*^$/]/\\&/g')/,\$d" "$CONF" > "$TMP"
+printf '\n%s\n' "$MARKER" >> "$TMP"
+cat "$SRC/nginx/${DOMAIN}.container.conf" >> "$TMP"
+cat "$TMP" > "$CONF"
+rm -f "$TMP"
+
+# Prove the container is reading the file we just wrote, rather than a
+# detached inode, before trusting anything nginx says about it.
+docker exec "$NGINX_CTR" grep -q 'softech-agency' /etc/nginx/conf.d/default.conf || {
+  restore
+  die "the nginx container is not seeing the updated file — its single-file
+       bind mount is pointing at a stale inode. Recreate it to re-resolve:
+         docker restart $NGINX_CTR"
+}
 
 # Full output, not tail -2: "conflicting server name" arrives as a warning, and
 # hiding it made a duplicated block look like a clean apply.

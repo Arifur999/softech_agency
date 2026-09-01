@@ -157,6 +157,14 @@
   --color-surface-200: #dbe8fe;
 }
 
+:root {
+  /* Pacing for every reveal. Tune here, not per component. */
+  --reveal-duration: 1150ms;
+  --reveal-distance: 34px;
+  --reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --enter-duration: 1300ms;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -184,25 +192,25 @@
   [data-reveal] {
     opacity: 0;
     transition:
-      opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
-      transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+      opacity var(--reveal-duration) var(--reveal-ease),
+      transform var(--reveal-duration) var(--reveal-ease);
     will-change: opacity, transform;
   }
 
-  [data-reveal="up"]    { transform: translate3d(0, 28px, 0); }
+  [data-reveal="up"]    { transform: translate3d(0, var(--reveal-distance), 0); }
   [data-reveal="fade"]  { transform: none; }
-  [data-reveal="scale"] { transform: scale(0.96); }
+  [data-reveal="scale"] { transform: scale(0.94); }
   /* An un-fired X-axis reveal shifts its element sideways, which on a narrow
      screen pushes the document wider — measured at 34px of horizontal scroll
      on a 390px viewport. So they rise like the rest by default, and only
      translate horizontally from lg up, where the side-by-side layouts they
      belong to actually exist and there is room to spare. */
   [data-reveal="left"],
-  [data-reveal="right"] { transform: translate3d(0, 28px, 0); }
+  [data-reveal="right"] { transform: translate3d(0, var(--reveal-distance), 0); }
 
   @media (min-width: 1024px) {
-    [data-reveal="left"]  { transform: translate3d(-28px, 0, 0); }
-    [data-reveal="right"] { transform: translate3d(28px, 0, 0); }
+    [data-reveal="left"]  { transform: translate3d(calc(var(--reveal-distance) * -1), 0, 0); }
+    [data-reveal="right"] { transform: translate3d(var(--reveal-distance), 0, 0); }
   }
 
   [data-reveal][data-revealed="true"] {
@@ -220,7 +228,7 @@
   @keyframes softech-enter {
     from {
       opacity: 0;
-      transform: translate3d(0, 24px, 0);
+      transform: translate3d(0, 30px, 0);
     }
     to {
       opacity: 1;
@@ -230,6 +238,6 @@
 
   [data-enter] {
     opacity: 0;
-    animation: softech-enter 800ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation: softech-enter var(--enter-duration) var(--reveal-ease) forwards;
   }
 }

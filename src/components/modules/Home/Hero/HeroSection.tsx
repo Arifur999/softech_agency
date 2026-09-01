@@ -29,13 +29,13 @@ export function HeroSection() {
         className="pt-[110px] pb-0 sm:pt-[130px] lg:min-h-[1160px] lg:pt-[166px]"
         innerClassName="relative z-10 flex flex-col items-center"
       >
-        <div data-enter style={{ animationDelay: "60ms" }}>
+        <div data-enter style={{ animationDelay: "120ms" }}>
           <SectionBadge>{HERO.badge}</SectionBadge>
         </div>
 
         <div
           data-enter
-          style={{ animationDelay: "180ms" }}
+          style={{ animationDelay: "340ms" }}
           className="mt-3 flex w-full flex-col items-center gap-5 lg:gap-[19px]"
         >
           <HeroHeadline />
@@ -47,7 +47,7 @@ export function HeroSection() {
 
         <div
           data-enter
-          style={{ animationDelay: "320ms" }}
+          style={{ animationDelay: "580ms" }}
           className="mt-7 flex flex-col items-center gap-4 sm:flex-row lg:mt-[34px] lg:gap-[21px]"
         >
           <PillButton href={PRIMARY_CTA.href} variant="gradient" className="w-[243px]">
@@ -60,7 +60,7 @@ export function HeroSection() {
 
         <p
           data-enter
-          style={{ animationDelay: "440ms" }}
+          style={{ animationDelay: "800ms" }}
           className="mt-7 text-center text-[14px] text-ink-900 lg:mt-[34px] lg:text-[16px]"
         >
           {HERO.footnote}
@@ -69,7 +69,7 @@ export function HeroSection() {
         {/* Group 81125 — the tablet pair bleeds off the bottom of the frame. */}
         <div
           data-enter
-          style={{ animationDelay: "560ms" }}
+          style={{ animationDelay: "1000ms" }}
           className="mt-10 w-full max-w-[1312px] lg:mt-[15px]"
         >
           <Image

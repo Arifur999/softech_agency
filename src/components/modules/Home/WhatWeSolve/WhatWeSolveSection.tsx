@@ -23,7 +23,7 @@ export function WhatWeSolveSection() {
       />
       </Reveal>
 
-      <RevealGroup className="grid w-full grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3 lg:gap-[30px]" itemClassName="flex" step={80}>
+      <RevealGroup className="grid w-full grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3 lg:gap-[30px]" itemClassName="flex" step={130}>
         {WHAT_WE_SOLVE_CARDS.map((card) => (
           <SolveCard key={card.title} {...card} />
         ))}

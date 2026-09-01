@@ -97,7 +97,7 @@ interface RevealGroupProps {
 /** Reveals a list of siblings one after another — used for every card grid. */
 export function RevealGroup({
   children,
-  step = 90,
+  step = 150,
   variant = "up",
   className,
   itemClassName,

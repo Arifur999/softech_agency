@@ -42,7 +42,7 @@ export function ContactCtaSection() {
           </div>
         </Reveal>
 
-        <Reveal variant="right" delay={120} className="w-full lg:flex-1">
+        <Reveal variant="right" delay={220} className="w-full lg:flex-1">
           <NeedSolutionPanel />
         </Reveal>
       </div>

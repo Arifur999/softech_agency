@@ -30,7 +30,7 @@ export function HowWeWorkSection() {
               // flexGrow carries the Figma width ratio for the row, so it has
               // to stay on the flex child; Reveal sits inside it.
               <div key={step.title} style={{ flexGrow: step.width, flexBasis: 0 }}>
-                <Reveal delay={index * 110}>
+                <Reveal delay={index * 180}>
                   <ProcessCard {...step} />
                 </Reveal>
               </div>

@@ -32,7 +32,7 @@ export function OurApproachSection() {
       />
       </Reveal>
 
-      <RevealGroup className="flex flex-col gap-6 lg:flex-row lg:items-stretch lg:gap-8" itemClassName="flex flex-1" step={120}>
+      <RevealGroup className="flex flex-col gap-6 lg:flex-row lg:items-stretch lg:gap-8" itemClassName="flex flex-1" step={200}>
         <ApproachCard
           icon={<TriangleAlert className="size-6 text-[#f4364c] lg:size-7" />}
           iconTileClassName="bg-[#fdeaed]"

@@ -26,7 +26,7 @@ export function OurSoftwareSection() {
         <ProductToggle />
       </Reveal>
 
-      <RevealGroup className="flex flex-col gap-8 lg:flex-row lg:items-stretch lg:gap-[52px]" itemClassName="flex flex-1" step={140}>
+      <RevealGroup className="flex flex-col gap-8 lg:flex-row lg:items-stretch lg:gap-[52px]" itemClassName="flex flex-1" step={220}>
         <FurnifyCard />
         <ComingSoonCard />
       </RevealGroup>

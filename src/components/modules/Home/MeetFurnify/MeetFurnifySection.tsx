@@ -59,7 +59,7 @@ export function MeetFurnifySection() {
         </Reveal>
 
         {/* Node 1:163 — the tablet sits at -1.8deg and bleeds off the bottom. */}
-        <Reveal variant="scale" delay={120} className="w-full max-w-[1130px] pt-6 lg:pt-4">
+        <Reveal variant="scale" delay={220} className="w-full max-w-[1130px] pt-6 lg:pt-4">
           <Image
             src={image.src}
             alt={image.alt}

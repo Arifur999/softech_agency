@@ -1,28 +1,47 @@
 # Lives on the VPS at /opt/softech-agency/docker-compose.yml
 #
-# The container binds to 127.0.0.1 only — nginx on the host is the single
-# public entrypoint, so nothing here can be reached directly from the internet
-# and nothing here can collide with a port another site is already serving.
+# Separate compose project from the hatim stack, but joined to its network so
+# the nginx container already holding :80/:443 can reach this one by name.
+#
+# No `ports:` on purpose. The site is reachable only through that nginx, so it
+# cannot be hit directly from the internet and cannot collide with a port any
+# other service is using. That also sidesteps Docker's habit of punching
+# published ports past ufw.
 
 services:
   web:
     image: ${IMAGE}
     container_name: softech-agency
     restart: unless-stopped
-    ports:
-      - "127.0.0.1:${APP_PORT:-3100}:3000"
     environment:
       NODE_ENV: production
       PORT: "3000"
       HOSTNAME: 0.0.0.0
+    expose:
+      - "3000"
+    networks:
+      - proxy
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1:3000/api/health"]
       interval: 30s
       timeout: 5s
       start_period: 20s
       retries: 3
+    # A ceiling, so this site can never be the reason the box OOMs. The hatim
+    # stack already reserves 3G + 1.5G + 256M of the 8G.
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+          cpus: '1.0'
     logging:
       driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
+
+networks:
+  proxy:
+    # Created by the hatim stack; referenced, never managed, from here.
+    name: hatim_backend_default
+    external: true

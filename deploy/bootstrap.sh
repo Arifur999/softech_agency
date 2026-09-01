@@ -7,7 +7,7 @@
 set -euo pipefail
 
 APP_DIR=/opt/softech-agency
-APP_PORT="${APP_PORT:-3100}"
+PROXY_NET=hatim_backend_default
 
 ok()   { printf '\033[32m  ok\033[0m  %s\n' "$1"; }
 info() { printf '\033[36m  ..\033[0m  %s\n' "$1"; }
@@ -15,12 +15,9 @@ die()  { printf '\033[31m FAIL\033[0m  %s\n' "$1" >&2; exit 1; }
 
 [ "$(id -u)" -eq 0 ] || die "run as root (sudo bash bootstrap.sh)"
 
-printf '\n\033[1m1. Checking the port is free\033[0m\n'
-if ss -ltn | grep -q ":${APP_PORT}\s"; then
-  die "port ${APP_PORT} is already in use. Re-run with a different one:
-       APP_PORT=3200 sudo -E bash bootstrap.sh"
-fi
-ok "port ${APP_PORT} is free"
+printf '\n\033[1m1. Ports\033[0m\n'
+info "nothing to reserve — the compose file publishes no host port at all"
+info "nginx reaches the container by name over ${PROXY_NET}"
 
 printf '\n\033[1m2. Docker\033[0m\n'
 if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
@@ -52,18 +49,23 @@ ok "$APP_DIR"
 
 if [ ! -f "$APP_DIR/.env" ]; then
   cat > "$APP_DIR/.env" <<EOF
-# Rewritten by the deploy workflow on every release.
+# IMAGE is rewritten by the deploy workflow on every release.
 IMAGE=ghcr.io/arifur999/softech_agency:latest
-APP_PORT=${APP_PORT}
 EOF
-  ok "wrote .env (APP_PORT=${APP_PORT})"
+  ok "wrote .env"
 else
   ok ".env already exists — left as is"
 fi
 
-printf '\n\033[1m4. Webroot for TLS renewals\033[0m\n'
-mkdir -p /var/www/certbot
-ok "/var/www/certbot"
+printf '\n\033[1m4. Proxy network\033[0m\n'
+if docker network inspect "$PROXY_NET" >/dev/null 2>&1; then
+  ok "${PROXY_NET} exists — the compose file joins it as external"
+else
+  die "network ${PROXY_NET} not found. It belongs to the hatim stack; start
+       that first, or update the networks block in docker-compose.yml."
+fi
+# The TLS webroot is a docker volume owned by the hatim stack, not a host path,
+# so there is nothing to create here.
 
 printf '\n\033[1m5. Confirming nothing else changed\033[0m\n'
 info "nginx service: $(systemctl is-active nginx 2>/dev/null || echo 'not running / not installed')"

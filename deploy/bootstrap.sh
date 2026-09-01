@@ -77,7 +77,7 @@ cat <<EOF
 $(printf '\033[1mStage 1 done.\033[0m') Nothing serving traffic was modified.
 
 Next:
-  1. Copy docker-compose.yml to ${APP_DIR}/
-  2. Push to main so GitHub Actions builds and pushes the first image
-  3. Run setup-nginx.sh to add the softech.agency server block and get TLS
+  1. cp docker-compose.yml ${APP_DIR}/
+  2. Add the GitHub secrets, then push to main so Actions builds the first image
+  3. bash attach-site.sh you@example.com   — adds the nginx blocks and gets TLS
 EOF

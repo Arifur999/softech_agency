@@ -192,10 +192,18 @@
   [data-reveal="up"]    { transform: translate3d(0, 28px, 0); }
   [data-reveal="fade"]  { transform: none; }
   [data-reveal="scale"] { transform: scale(0.96); }
-  /* X-axis reveals settle to 0, and the parents are overflow-safe, so these
-     cannot widen the document while they play. */
-  [data-reveal="left"]  { transform: translate3d(-28px, 0, 0); }
-  [data-reveal="right"] { transform: translate3d(28px, 0, 0); }
+  /* An un-fired X-axis reveal shifts its element sideways, which on a narrow
+     screen pushes the document wider — measured at 34px of horizontal scroll
+     on a 390px viewport. So they rise like the rest by default, and only
+     translate horizontally from lg up, where the side-by-side layouts they
+     belong to actually exist and there is room to spare. */
+  [data-reveal="left"],
+  [data-reveal="right"] { transform: translate3d(0, 28px, 0); }
+
+  @media (min-width: 1024px) {
+    [data-reveal="left"]  { transform: translate3d(-28px, 0, 0); }
+    [data-reveal="right"] { transform: translate3d(28px, 0, 0); }
+  }
 
   [data-reveal][data-revealed="true"] {
     opacity: 1;

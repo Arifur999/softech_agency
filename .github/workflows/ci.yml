@@ -1,15 +1,19 @@
 name: CI
 
-# Quality gate. Runs on every push and every PR. deploy.yml waits on this
-# workflow, so a red build here means nothing reaches the server.
+# Quality gate.
+#
+# No `push` trigger on purpose. deploy.yml already calls this workflow on every
+# push to main, and when both fired for the same commit they landed in the same
+# concurrency group and cancelled each other — runs died after ~30s having
+# tested nothing. Pull requests run it directly; main runs it through deploy.
 on:
-  push:
-    branches: [main]
   pull_request:
   workflow_call:
 
 concurrency:
-  group: ci-${{ github.ref }}
+  # github.workflow is the CALLER's name when reused, so a PR run and a
+  # deploy-triggered run can never share a group.
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

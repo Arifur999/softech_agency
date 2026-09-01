@@ -85,7 +85,7 @@ Repo → Settings → Secrets and variables → Actions:
 | `VPS_HOST`     | `187.127.124.251`                                           |
 | `VPS_USER`     | `root`                                                      |
 | `VPS_SSH_KEY`  | Private key whose public half is in the VPS `authorized_keys` |
-| `GHCR_TOKEN`   | GitHub PAT (classic) with `read:packages`                    |
+| `GHCR_TOKEN`   | Only if the GHCR package stays private — PAT with `read:packages` |
 
 Generate a deploy-only key rather than reusing a personal one:
 

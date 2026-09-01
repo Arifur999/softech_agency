@@ -1,0 +1,10 @@
+[Unit]
+Description=Check for a new softech.agency image every 2 minutes
+
+[Timer]
+OnBootSec=90s
+OnUnitActiveSec=2min
+AccuracySec=15s
+
+[Install]
+WantedBy=timers.target

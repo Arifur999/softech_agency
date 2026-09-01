@@ -1,8 +1,13 @@
 name: Deploy
 
-# main -> quality gate -> image to GHCR -> SSH pull on the VPS.
-# Every step must pass before the next runs, so a broken commit never reaches
-# softech.agency. Nothing here touches any other site on the server.
+# main -> quality gate -> image to GHCR. The VPS takes it from there.
+#
+# There is no SSH step: GitHub runners cannot reach the host on port 22 (every
+# attempt times out, while the same port answers from the open internet), so
+# the release is pulled rather than pushed. deploy/agent/ runs a systemd timer
+# on the VPS that watches this image and rolls itself forward.
+#
+# A side benefit: no SSH private key needs to exist in this repo's secrets.
 on:
   push:
     branches: [main]
@@ -60,114 +65,3 @@ jobs:
             ${{ env.REGISTRY }}/${{ steps.meta.outputs.repo }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-  deploy:
-    name: Release to VPS
-    needs: build
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    environment: production
-    steps:
-      # The VPS answers port 22 from the open internet, but runs have hit
-      # `dial tcp: i/o timeout` from GitHub's runners specifically — the host
-      # appears to filter some of that range, and it clears on its own. Waiting
-      # here turns a transient block into a slow deploy rather than a failed
-      # one, and if it never clears the error says so plainly instead of
-      # surfacing as an opaque SSH failure.
-      - name: Wait for the VPS to accept connections
-        run: |
-          HOST='${{ secrets.VPS_HOST }}'
-          PORT='${{ secrets.VPS_PORT || 22 }}'
-          for i in $(seq 1 12); do
-            if timeout 10 bash -c "cat < /dev/null > /dev/tcp/$HOST/$PORT" 2>/dev/null; then
-              echo "reachable on attempt $i"
-              exit 0
-            fi
-            echo "attempt $i/12: no answer yet, retrying in 15s"
-            sleep 15
-          done
-          echo "::error::$HOST:$PORT never answered from this runner in 3 minutes."
-          exit 1
-
-      - name: Pull and restart over SSH
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_PORT || 22 }}
-          timeout: 60s
-          command_timeout: 20m
-          # No script_stop: it is not an input on v1 and only produced a
-          # warning. The script sets -euo pipefail itself, so it already
-          # aborts on the first failing command.
-          script: |
-            set -euo pipefail
-            cd /opt/softech-agency
-
-            # A public GHCR package needs no auth; log in only if a token is set.
-            if [ -n "${{ secrets.GHCR_TOKEN }}" ]; then
-              echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io \
-                -u "${{ github.actor }}" --password-stdin
-            else
-              echo "no GHCR_TOKEN set — assuming the package is public"
-            fi
-
-            # Remember what is running so a bad release can be rolled back.
-            PREVIOUS=$(grep '^IMAGE=' .env | cut -d= -f2- || true)
-            echo "previous image: ${PREVIOUS:-none}"
-
-            sed -i "s|^IMAGE=.*|IMAGE=${{ needs.build.outputs.image }}|" .env
-            grep -q '^IMAGE=' .env || echo "IMAGE=${{ needs.build.outputs.image }}" >> .env
-
-            docker compose pull web
-            docker compose up -d --remove-orphans web
-
-            # Only this site's container is ever inspected or restarted.
-            echo "waiting for health..."
-            for i in $(seq 1 30); do
-              STATE=$(docker inspect -f '{{.State.Health.Status}}' softech-agency 2>/dev/null || echo starting)
-              if [ "$STATE" = "healthy" ]; then
-                echo "healthy after ${i}0s"
-                docker image prune -f --filter "until=168h" >/dev/null 2>&1 || true
-                exit 0
-              fi
-              sleep 10
-            done
-
-            echo "::error::New image never became healthy — rolling back."
-            if [ -n "${PREVIOUS:-}" ]; then
-              sed -i "s|^IMAGE=.*|IMAGE=${PREVIOUS}|" .env
-              docker compose up -d web
-            fi
-            docker compose logs --tail=80 web
-            exit 1
-
-      - name: Verify the site answers over HTTPS
-        run: |
-          # -w already prints 000 on failure; the old `|| echo 000` fallback
-          # concatenated a second one and reported "000000".
-          for i in $(seq 1 10); do
-            CODE=$(curl -sS -o /dev/null -w '%{http_code}' https://softech.agency/ 2>/dev/null || true)
-            if [ "$CODE" = "200" ]; then echo "softech.agency -> 200"; exit 0; fi
-            echo "attempt $i: ${CODE:-no response}"
-            sleep 6
-          done
-          # A TLS failure here means nginx is not serving our vhost, which is a
-          # different problem from the app being down — say which.
-          if ! curl -sS -o /dev/null --max-time 15 https://softech.agency/ 2>&1 | grep -qi 'certificate'; then
-            curl -sS -o /dev/null https://softech.agency/ 2>&1 | head -3 || true
-          fi
-          echo "::error::softech.agency did not return 200. If the error above mentions \
-          a certificate, the nginx container has lost the softech.agency vhost — \
-          re-run deploy/ensure-site.sh on the VPS."
-          exit 1
-
-      - name: Confirm furnify.softech.agency is still up
-        run: |
-          CODE=$(curl -sS -o /dev/null -w '%{http_code}' https://furnify.softech.agency/ 2>/dev/null || true)
-          echo "furnify.softech.agency -> $CODE"
-          case "$CODE" in
-            2*|3*) ;;
-            *) echo "::error::furnify.softech.agency looks affected by this deploy"; exit 1 ;;
-          esac

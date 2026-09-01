@@ -75,7 +75,9 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT || 22 }}
-          script_stop: true
+          # No script_stop: it is not an input on v1 and only produced a
+          # warning. The script sets -euo pipefail itself, so it already
+          # aborts on the first failing command.
           script: |
             set -euo pipefail
             cd /opt/softech-agency

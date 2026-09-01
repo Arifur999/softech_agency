@@ -145,16 +145,27 @@ jobs:
 
       - name: Verify the site answers over HTTPS
         run: |
+          # -w already prints 000 on failure; the old `|| echo 000` fallback
+          # concatenated a second one and reported "000000".
           for i in $(seq 1 10); do
-            CODE=$(curl -sS -o /dev/null -w '%{http_code}' https://softech.agency/ || echo 000)
+            CODE=$(curl -sS -o /dev/null -w '%{http_code}' https://softech.agency/ 2>/dev/null || true)
             if [ "$CODE" = "200" ]; then echo "softech.agency -> 200"; exit 0; fi
-            echo "attempt $i: $CODE"; sleep 6
+            echo "attempt $i: ${CODE:-no response}"
+            sleep 6
           done
-          echo "::error::softech.agency did not return 200"; exit 1
+          # A TLS failure here means nginx is not serving our vhost, which is a
+          # different problem from the app being down — say which.
+          if ! curl -sS -o /dev/null --max-time 15 https://softech.agency/ 2>&1 | grep -qi 'certificate'; then
+            curl -sS -o /dev/null https://softech.agency/ 2>&1 | head -3 || true
+          fi
+          echo "::error::softech.agency did not return 200. If the error above mentions \
+          a certificate, the nginx container has lost the softech.agency vhost — \
+          re-run deploy/ensure-site.sh on the VPS."
+          exit 1
 
       - name: Confirm furnify.softech.agency is still up
         run: |
-          CODE=$(curl -sS -o /dev/null -w '%{http_code}' https://furnify.softech.agency/ || echo 000)
+          CODE=$(curl -sS -o /dev/null -w '%{http_code}' https://furnify.softech.agency/ 2>/dev/null || true)
           echo "furnify.softech.agency -> $CODE"
           case "$CODE" in
             2*|3*) ;;

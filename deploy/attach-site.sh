@@ -43,7 +43,7 @@ restore() {
 printf '\n\033[1m1. Backup and baseline\033[0m\n'
 cp "$CONF" "$BACKUP"
 ok "$BACKUP"
-BEFORE=$(curl -sS -o /dev/null -w '%{http_code}' https://furnify.softech.agency/ || echo 000)
+BEFORE=$(curl -sS -o /dev/null -w '%{http_code}' https://furnify.softech.agency/ 2>/dev/null || true)
 info "furnify.softech.agency -> $BEFORE"
 [ "$BEFORE" = "000" ] && die "furnify is not answering already — fix that first"
 
@@ -81,7 +81,9 @@ printf '\n\033[1m4. Installing the real config\033[0m\n'
 sed -i "/$(printf '%s' "$MARKER" | sed 's/[][\.*^$/]/\\&/g')/,\$d" "$CONF"
 { printf '\n%s\n' "$MARKER"; cat "$SRC/nginx/${DOMAIN}.container.conf"; } >> "$CONF"
 
-if ! docker exec "$NGINX_CTR" nginx -t 2>&1 | tail -2; then
+# Full output, not tail -2: "conflicting server name" arrives as a warning, and
+# hiding it made a duplicated block look like a clean apply.
+if ! docker exec "$NGINX_CTR" nginx -t 2>&1; then
   restore
   die "nginx -t rejected the full config — restored, nothing was loaded"
 fi
@@ -90,8 +92,8 @@ ok "reloaded gracefully"
 
 printf '\n\033[1m5. Verifying\033[0m\n'
 sleep 2
-AFTER=$(curl -sS -o /dev/null -w '%{http_code}' https://furnify.softech.agency/ || echo 000)
-SELF=$(curl -sS -o /dev/null -w '%{http_code}' "https://$DOMAIN/" || echo 000)
+AFTER=$(curl -sS -o /dev/null -w '%{http_code}' https://furnify.softech.agency/ 2>/dev/null || true)
+SELF=$(curl -sS -o /dev/null -w '%{http_code}' "https://$DOMAIN/" 2>/dev/null || true)
 info "furnify.softech.agency -> $AFTER  (was $BEFORE)"
 info "$DOMAIN -> $SELF"
 

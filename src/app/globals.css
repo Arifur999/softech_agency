@@ -167,3 +167,61 @@
     color: var(--color-ink-700);
   }
 }
+
+
+/* ---------------------------------------------------------------
+   Scroll reveal.
+
+   Everything is gated behind `prefers-reduced-motion: no-preference`, so the
+   hidden start state only exists for visitors who have not asked for less
+   motion. Anyone who has — and anyone without JS, via the <noscript> override
+   in the root layout — gets the finished page with no animation at all.
+
+   Only opacity and transform are touched. Both are compositor-only, so a
+   reveal cannot reflow the page or create horizontal overflow.
+   --------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal] {
+    opacity: 0;
+    transition:
+      opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+  }
+
+  [data-reveal="up"]    { transform: translate3d(0, 28px, 0); }
+  [data-reveal="fade"]  { transform: none; }
+  [data-reveal="scale"] { transform: scale(0.96); }
+  /* X-axis reveals settle to 0, and the parents are overflow-safe, so these
+     cannot widen the document while they play. */
+  [data-reveal="left"]  { transform: translate3d(-28px, 0, 0); }
+  [data-reveal="right"] { transform: translate3d(28px, 0, 0); }
+
+  [data-reveal][data-revealed="true"] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Dropped once the element has settled so the compositor can release it. */
+  [data-reveal][data-revealed="true"] {
+    will-change: auto;
+  }
+
+  /* Hero entrance — plays on load rather than on scroll, since it is already
+     in view. Same easing as the reveals so the page feels of a piece. */
+  @keyframes softech-enter {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 24px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  [data-enter] {
+    opacity: 0;
+    animation: softech-enter 800ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+}

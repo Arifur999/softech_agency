@@ -1,4 +1,5 @@
 import { CircleCheck, TriangleAlert, Zap } from "lucide-react";
+import { Reveal, RevealGroup } from "@/components/shared/Reveal";
 
 import { ApproachCard } from "@/components/modules/Home/OurApproach/ApproachCard";
 import { ImpactChart } from "@/components/modules/Home/OurApproach/ImpactChart";
@@ -20,6 +21,7 @@ export function OurApproachSection() {
       className="py-16 lg:py-[76px]"
       innerClassName="flex flex-col gap-12 lg:gap-[74px]"
     >
+      <Reveal>
       <SectionIntro
         {...OUR_APPROACH_INTRO}
         className="w-full max-w-[1169px] gap-[19px]"
@@ -28,8 +30,9 @@ export function OurApproachSection() {
         accentClassName="font-normal"
         descriptionClassName="leading-[1.5] lg:text-[18px]"
       />
+      </Reveal>
 
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-stretch lg:gap-8">
+      <RevealGroup className="flex flex-col gap-6 lg:flex-row lg:items-stretch lg:gap-8" itemClassName="flex flex-1" step={120}>
         <ApproachCard
           icon={<TriangleAlert className="size-6 text-[#f4364c] lg:size-7" />}
           iconTileClassName="bg-[#fdeaed]"
@@ -59,7 +62,7 @@ export function OurApproachSection() {
         >
           <ImpactChart />
         </ApproachCard>
-      </div>
+      </RevealGroup>
     </SectionShell>
   );
 }

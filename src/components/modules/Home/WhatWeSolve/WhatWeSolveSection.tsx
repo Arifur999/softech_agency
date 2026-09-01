@@ -1,4 +1,5 @@
 import { SolveCard } from "@/components/modules/Home/WhatWeSolve/SolveCard";
+import { Reveal, RevealGroup } from "@/components/shared/Reveal";
 import { SectionIntro } from "@/components/shared/SectionIntro";
 import { SectionShell } from "@/components/shared/SectionShell";
 import { WHAT_WE_SOLVE_CARDS, WHAT_WE_SOLVE_INTRO } from "@/data/home/whatWeSolve";
@@ -10,6 +11,7 @@ export function WhatWeSolveSection() {
       className="py-16 lg:py-[76px]"
       innerClassName="flex flex-col items-center gap-12 lg:gap-14"
     >
+      <Reveal>
       <SectionIntro
         {...WHAT_WE_SOLVE_INTRO}
         align="center"
@@ -19,12 +21,13 @@ export function WhatWeSolveSection() {
         accentClassName="font-normal"
         descriptionClassName="leading-[1.5] lg:text-[18px]"
       />
+      </Reveal>
 
-      <div className="grid w-full grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3 lg:gap-[30px]">
+      <RevealGroup className="grid w-full grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3 lg:gap-[30px]" itemClassName="flex" step={80}>
         {WHAT_WE_SOLVE_CARDS.map((card) => (
           <SolveCard key={card.title} {...card} />
         ))}
-      </div>
+      </RevealGroup>
     </SectionShell>
   );
 }

@@ -1,4 +1,5 @@
 import { PrincipleCard } from "@/components/modules/Home/WhySoftech/PrincipleCard";
+import { Reveal, RevealGroup } from "@/components/shared/Reveal";
 import { WorkflowCard } from "@/components/modules/Home/WhySoftech/WorkflowCard";
 import { SectionIntro } from "@/components/shared/SectionIntro";
 import { SectionShell } from "@/components/shared/SectionShell";
@@ -15,6 +16,7 @@ export function WhySoftechSection() {
       className="py-16 lg:py-[76px]"
       innerClassName="flex flex-col items-center gap-12 lg:gap-[84px]"
     >
+      <Reveal>
       <SectionIntro
         {...WHY_SOFTECH_INTRO}
         align="center"
@@ -24,15 +26,18 @@ export function WhySoftechSection() {
         accentClassName="font-normal"
         descriptionClassName="leading-[1.5] lg:text-[18px]"
       />
+      </Reveal>
 
       <div className="flex w-full flex-col gap-8 lg:flex-row lg:items-end lg:gap-[55px]">
-        <WorkflowCard />
+        <Reveal variant="left" className="flex flex-1">
+          <WorkflowCard />
+        </Reveal>
 
-        <div className="flex flex-col gap-[27px] lg:w-[46%] lg:shrink-0 2xl:w-[722px]">
+        <RevealGroup variant="right" className="flex flex-col gap-[27px] lg:w-[46%] lg:shrink-0 2xl:w-[722px]">
           {WHY_SOFTECH_PRINCIPLES.map((card, index) => (
             <PrincipleCard key={card.title} {...card} disc={PRINCIPLE_DISCS[index]} />
           ))}
-        </div>
+        </RevealGroup>
       </div>
     </SectionShell>
   );

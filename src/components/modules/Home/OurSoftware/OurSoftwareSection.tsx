@@ -1,4 +1,5 @@
 import { ComingSoonCard } from "@/components/modules/Home/OurSoftware/ComingSoonCard";
+import { Reveal, RevealGroup } from "@/components/shared/Reveal";
 import { FurnifyCard } from "@/components/modules/Home/OurSoftware/FurnifyCard";
 import { ProductToggle } from "@/components/modules/Home/OurSoftware/ProductToggle";
 import { SectionIntro } from "@/components/shared/SectionIntro";
@@ -13,7 +14,7 @@ export function OurSoftwareSection() {
       className="py-16 lg:py-[76px]"
       innerClassName="flex flex-col gap-10 lg:gap-16"
     >
-      <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
+      <Reveal className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
         <SectionIntro
           {...OUR_SOFTWARE_INTRO}
           className="max-w-[877px]"
@@ -23,12 +24,12 @@ export function OurSoftwareSection() {
           descriptionClassName="lg:text-[18px]"
         />
         <ProductToggle />
-      </div>
+      </Reveal>
 
-      <div className="flex flex-col gap-8 lg:flex-row lg:items-stretch lg:gap-[52px]">
+      <RevealGroup className="flex flex-col gap-8 lg:flex-row lg:items-stretch lg:gap-[52px]" itemClassName="flex flex-1" step={140}>
         <FurnifyCard />
         <ComingSoonCard />
-      </div>
+      </RevealGroup>
     </SectionShell>
   );
 }

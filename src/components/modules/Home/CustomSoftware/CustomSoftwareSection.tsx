@@ -1,4 +1,5 @@
 import { CustomSoftwareCard } from "@/components/modules/Home/CustomSoftware/CustomSoftwareCard";
+import { Reveal, RevealGroup } from "@/components/shared/Reveal";
 import { PillButton } from "@/components/shared/PillButton";
 import { SectionIntro } from "@/components/shared/SectionIntro";
 import { SectionShell } from "@/components/shared/SectionShell";
@@ -16,7 +17,7 @@ export function CustomSoftwareSection() {
       className="py-16 lg:py-[76px]"
       innerClassName="flex flex-col items-center gap-12 lg:gap-[82px]"
     >
-      <div className="flex w-full flex-col gap-8 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
+      <Reveal className="flex w-full flex-col gap-8 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
         <SectionIntro
           {...CUSTOM_SOFTWARE_INTRO}
           className="max-w-[932px] gap-4"
@@ -33,13 +34,13 @@ export function CustomSoftwareSection() {
         >
           {CUSTOM_SOFTWARE_CTA.label}
         </PillButton>
-      </div>
+      </Reveal>
 
-      <div className="flex w-full flex-col gap-7 lg:flex-row lg:items-stretch lg:gap-[28px]">
+      <RevealGroup className="flex w-full flex-col gap-7 lg:flex-row lg:items-stretch lg:gap-[28px]" itemClassName="flex flex-1">
         {CUSTOM_SOFTWARE_CARDS.map((card) => (
           <CustomSoftwareCard key={card.title} {...card} />
         ))}
-      </div>
+      </RevealGroup>
     </SectionShell>
   );
 }

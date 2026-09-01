@@ -1,4 +1,5 @@
 import { PillButton } from "@/components/shared/PillButton";
+import { Reveal } from "@/components/shared/Reveal";
 import { SectionBadge } from "@/components/shared/SectionBadge";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { SectionShell } from "@/components/shared/SectionShell";
@@ -17,7 +18,7 @@ export function BuildWhatsNextSection() {
             "linear-gradient(181.66deg, rgb(10, 111, 237) 3.5911%, rgb(186, 218, 255) 93.625%)",
         }}
       >
-        <div className="flex flex-col items-center justify-center gap-8 lg:gap-[38px]">
+        <Reveal className="flex flex-col items-center justify-center gap-8 lg:gap-[38px]">
           <SectionBadge tone="onDark" className="border-[#8bb6ff]">
             {badge}
           </SectionBadge>
@@ -51,7 +52,7 @@ export function BuildWhatsNextSection() {
               </PillButton>
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </SectionShell>
   );

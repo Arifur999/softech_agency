@@ -52,123 +52,142 @@ file that does not exist yet.
 
 ---
 
-## Order of operations
+## Setup
 
-### 1. Survey — changes nothing
+On the VPS, once:
 
-```bash
-apt-get update -qq && apt-get install -y -qq git
-git clone https://github.com/Arifur999/softech_agency.git /root/softech-src
-bash /root/softech-src/deploy/inspect-server.sh
-bash /root/softech-src/deploy/inspect-proxy.sh
-```
+    apt-get update -qq && apt-get install -y -qq git
+    git clone https://github.com/Arifur999/softech_agency.git /root/softech-src
+    bash /root/softech-src/deploy/bootstrap.sh
+    cp /root/softech-src/deploy/docker-compose.yml /opt/softech-agency/
+    bash /root/softech-src/deploy/install.sh
 
-### 2. DNS
+That is all.  is safe to re-run at any time.
 
-`softech.agency`, `www.softech.agency` and `furnify.softech.agency` already
-resolve to the VPS. Nothing to do.
+## How releases work
 
-### 3. Prepare
+ to main. The workflow runs lint, typecheck and build, and on green
+publishes an image to GHCR. A systemd timer on the VPS notices the new digest
+within two minutes, pulls it, recreates the container, waits for the
+healthcheck, and rolls back to the previous image if it never turns healthy.
 
-```bash
-bash /root/softech-src/deploy/bootstrap.sh
-cp /root/softech-src/deploy/docker-compose.yml /opt/softech-agency/
-```
+There is no SSH step. GitHub's runners cannot reach this host on port 22 —
+twelve attempts over three minutes all timed out, while the same port answers
+on every try from the open internet — so the release is pulled rather than
+pushed. No SSH private key needs to exist in the repository secrets.
 
-Docker is already installed here (it runs the hatim stack), so this only
-creates `/opt/softech-agency` and its `.env`. It touches no web server config.
+## Why the site kept losing its certificate
 
-### 4. GitHub secrets
+ belongs to the furnify deploy. Its  is
+rewritten on every furnify release, and its  can be too.
+The first approach appended the vhost to that , so a furnify
+release erased it and softech.agency fell through to furnify's block — furnify's certificate, furnify's content, a browser warning.
 
-Repo, then Settings, Secrets and variables, Actions:
+Now the vhost lives in , bind
+mounted into the nginx container, and  re-checks every
+two minutes. If a furnify release removes the mount, it is put back
+automatically. Nothing is restarted unless the vhost is actually missing.
 
-| Secret        | Value                                                         |
-| ------------- | ------------------------------------------------------------- |
-| `VPS_HOST`    | the VPS IPv4                                                  |
-| `VPS_USER`    | `root`                                                        |
-| `VPS_SSH_KEY` | private key whose public half is in the VPS `authorized_keys` |
-| `GHCR_TOKEN`  | only if the GHCR package stays private                        |
+To make it permanent on the furnify side too, add this line to the nginx
+service's  in the furnify repo's compose file, under the
+ line:
 
-Generate a deploy-only key on the VPS:
+    - /opt/softech-agency/nginx/softech.agency.conf:/etc/nginx/conf.d/softech.agency.conf:ro
 
-```bash
-ssh-keygen -t ed25519 -C "gh-actions" -f /root/.ssh/softech_deploy -N ""
-cat /root/.ssh/softech_deploy.pub >> /root/.ssh/authorized_keys
-chmod 600 /root/.ssh/authorized_keys
-cat /root/.ssh/softech_deploy
-```
+## Operations
 
-Paste that last output — `BEGIN` line through `END` line — into `VPS_SSH_KEY`.
+Check both timers:
 
-### 5. First image
+    systemctl list-timers 'softech-*'
+    journalctl -u softech-vhost -u softech-deploy --since '1 hour ago'
 
-Push to `main`. CI runs lint, typecheck and build, then pushes the image. The
-deploy job fails at the health wait because nginx is not attached yet — that is
-expected.
+Force a release now:
 
-Then make the package pullable: GitHub, Packages, `softech_agency`, Package
-settings, Visibility, **Public**. Or keep it private and set `GHCR_TOKEN`.
+    systemctl start softech-deploy
 
-### 6. Attach to the existing nginx
+Roll back to a specific commit:
 
-```bash
-cd /root/softech-src && git pull
-bash deploy/attach-site.sh you@example.com
-```
+    cd /opt/softech-agency
+    systemctl stop softech-deploy.timer
+    sed -i 's|^IMAGE=.*|IMAGE=ghcr.io/arifur999/softech_agency:<sha>|' .env
+    docker compose up -d web
 
-### 7. Release
+Renew certificates (both domains share the furnify stack's certbot volumes):
 
-Actions, Deploy, Re-run.
+    cd /srv/hatim/hatim_Backend
+    docker compose run --rm certbot renew
+    docker exec hatim_backend-nginx-1 nginx -s reload
 
----
+Logs:
 
-## Afterwards
-
-Every push to `main` runs the gate and, on green, releases. A failing lint,
-type error or build stops the pipeline before anything reaches the server.
-
-**Roll back the site:**
-
-```bash
-cd /opt/softech-agency
-sed -i 's|^IMAGE=.*|IMAGE=ghcr.io/arifur999/softech_agency:<sha>|' .env
-docker compose up -d web
-```
-
-**Undo the nginx change** — `attach-site.sh` prints the exact backup path:
-
-```bash
-cp /srv/hatim/hatim_Backend/nginx.conf.bak-<stamp> /srv/hatim/hatim_Backend/nginx.conf
-docker exec hatim_backend-nginx-1 nginx -t
-docker exec hatim_backend-nginx-1 nginx -s reload
-```
-
-**Certificate renewal** — the hatim stack's certbot service shares the same
-volumes, so both domains renew together:
-
-```bash
-cd /srv/hatim/hatim_Backend
-docker compose run --rm certbot renew
-docker exec hatim_backend-nginx-1 nginx -s reload
-```
-
-Worth putting on a cron or systemd timer if it is not already.
-
-**Logs:**
-
-```bash
-docker logs -f softech-agency
-docker logs -f hatim_backend-nginx-1
-```
-
----
+    docker logs -f softech-agency
+    docker logs -f hatim_backend-nginx-1
 
 ## Never do these on this box
 
-- **hPanel, OS & Panel, reinstall or change OS** — wipes everything.
-- **hPanel, Docker Manager, Install** — panel-driven, and Docker is already
-  installed anyway.
-- **`docker compose down` in `/srv/hatim/hatim_Backend`** — stops furnify. This
-  site's stack lives in `/opt/softech-agency` and is managed separately.
-- **Editing furnify's server blocks.** `attach-site.sh` only ever appends below
-  its own marker.
+- hPanel, OS & Panel, reinstall or change OS — wipes everything.
+- Usage:  docker compose [OPTIONS] COMMAND
+
+Define and run multi-container applications with Docker
+
+Options:
+      --all-resources              Include all resources, even those not
+                                   used by services
+      --ansi string                Control when to print ANSI control
+                                   characters ("never"|"always"|"auto")
+                                   (default "auto")
+      --compatibility              Run compose in backward compatibility mode
+      --dry-run                    Execute command in dry run mode
+      --env-file stringArray       Specify an alternate environment file
+  -f, --file stringArray           Compose configuration files
+      --parallel int               Control max parallelism, -1 for
+                                   unlimited (default -1)
+      --profile stringArray        Specify a profile to enable
+      --progress string            Set type of progress output (auto,
+                                   tty, plain, json, quiet)
+      --project-directory string   Specify an alternate working directory
+                                   (default: the path of the, first
+                                   specified, Compose file)
+  -p, --project-name string        Project name
+
+Management Commands:
+  bridge                  Convert compose files into another model
+
+Commands:
+  attach                  Attach local standard input, output, and error streams to a service's running container
+  build                   Build or rebuild services
+  commit                  Create a new image from a service container's changes
+  config                  Parse, resolve and render compose file in canonical format
+  cp                      Copy files/folders between a service container and the local filesystem
+  create                  Creates containers for a service
+  down                    Stop and remove containers, networks
+  events                  Receive real time events from containers
+  exec                    Execute a command in a running container
+  export                  Export a service container's filesystem as a tar archive
+  images                  List images used by the created containers
+  kill                    Force stop service containers
+  logs                    View output from containers
+  ls                      List running compose projects
+  pause                   Pause services
+  port                    Print the public port for a port binding
+  ps                      List containers
+  publish                 Publish compose application
+  pull                    Pull service images
+  push                    Push service images
+  restart                 Restart service containers
+  rm                      Removes stopped service containers
+  run                     Run a one-off command on a service
+  scale                   Scale services 
+  start                   Start services
+  stats                   Display a live stream of container(s) resource usage statistics
+  stop                    Stop services
+  top                     Display the running processes
+  unpause                 Unpause services
+  up                      Create and start containers
+  version                 Show the Docker Compose version information
+  volumes                 List volumes
+  wait                    Block until containers of all (or specified) services stop.
+  watch                   Watch build context for service and rebuild/refresh containers when files are updated
+
+Run 'docker compose COMMAND --help' for more information on a command. in  — stops furnify.
+- Edit furnify's server blocks. Nothing here writes to their nginx.conf.

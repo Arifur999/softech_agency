@@ -1,0 +1,8 @@
+[Unit]
+Description=Re-attach the softech.agency vhost if a furnify deploy removed it
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/softech-vhost --quiet
